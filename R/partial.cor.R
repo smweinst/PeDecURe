@@ -1,4 +1,13 @@
-my.pcor.fun = function(scores, A, Y){
+#' @title partial correlation
+#' @description estimate partial (+ marginal) correlations between each PC score and Y|A and A|Y
+#' @param scores matrix of PC scores (e.g., Xv1, Xv2, Xv3)
+#' @param A matrix of nuisance variables
+#' @param Y outcome variable
+#' @importFrom stats cor cov cov2cor lm pt
+#' @export
+#' @return list of partial and marginal correlations between each PC score and A and Y
+
+partial.cor = function(scores, A, Y){
   scores = as.matrix(scores)
   A = as.matrix(A)
   colnames(scores)  = paste0("PC",1:ncol(scores))
@@ -7,8 +16,7 @@ my.pcor.fun = function(scores, A, Y){
 
   pcor.Xv.j.Y.given.A = vector(mode = "numeric",length = ncol(scores))
   pcor.Xv.j.A.given.Y = rep(list(vector(mode = "numeric", length = ncol(scores))), ncol(A))
-  names(pcor.Xv.j.A.given.Y) = colnames(A)#paste0("A",1:ncol(A))
-  #pcor.Xv.j.Y.given.A = pcor.Xv.j.A.given.Y = vector(mode = "numeric",length = ncol(scores))
+  names(pcor.Xv.j.A.given.Y) = colnames(A)
 
   t.statistics = matrix(nrow=(ncol(A) + 1),ncol=ncol(scores))
   rownames(t.statistics) = c(paste0(colnames(A)),"Y")

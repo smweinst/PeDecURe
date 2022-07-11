@@ -1,11 +1,22 @@
+#' @title PeDecURe
+#' @description Function to implement PeDecURe (or PLS or other penalized PLS method, depending on input specifications). Note: the code for implementing PeDecURe was adapted from Lin et al. (2016)'s implementation of AC-PCA in R (see https://github.com/linzx06/AC-PCA).
+#' @param X n x p matrix of features to appear in the PeDecURe maximization term. In PeDecURe, this should be defined as X* ("X star"), i.e. the matrix of residuals after subtracting out the effects of A conditional on Y
+#' @param X.penalize n x p matrix of features to appear in the penalty term.In PeDecURe, this should be defined as X~ ("X tilde"), i.e. the matrix of residuals after subtracting out the effects of Y conditional on A. If X.penalize is not specified, no penalization will be done.
+#' @param A matrix of nuisance variables
+#' @param Y vector specifying outcome variable of interest (e.g., disease status)
+#' @param lambda tuning parameter (to be determined in other function)
+#' @param nPC number of primary components (PCs) to be extracted
+#' @param centerX TRUE/FALSE whether to center X by column mean (note: some centering/scaling may have been done before inputting data into pedecure function)
+#' @param centerA TRUE/FALSE whether to center A by column mean
+#' @param centerY TRUE/FALSE whether to center Y by mean
+#' @param scaleX TRUE/FALSE whether to scale each column of X by its standard deviation
+#' @param scaleA TRUE/FALSE whether to scale each column of A by its standard deviation
+#' @param scaleY TRUE/FALSE whether to scale Y by its standard deviation
+#' @export
+#' @importFrom RSpectra eigs eigs_sym
+#' @return PC loading vectors
+
 pedecure = function(X, X.penalize = NULL, A, Y, lambda, nPC, centerX = F, centerA = F, centerY = F, scaleX = F, scaleA = F, scaleY = F){
-  # X = the X that appears in maximization term
-  # X.penalize = the X that appears in penalty term
-  # A = matrix of nuisance variables
-  # Y = matrix of outcome variable / variable of interest
-  # lambda = tuning paramter
-  # nPC = number of directions of variation to extract
-  # centering and scaling - specify if not yet centered/scaled as desired before starting the function
 
   X = scale(X, center = centerX, scale = scaleX)
   Y = scale(Y, center = centerY, scale = scaleY)
@@ -48,81 +59,3 @@ pedecure = function(X, X.penalize = NULL, A, Y, lambda, nPC, centerX = F, center
 
 }
 
-pedecureMax = function(v,args){
-  X = args$X
-  X.penalize = args$X.penalize
-  Y = args$Y
-  A = args$A
-  lambda = args$lambda # tuning parameter lambda
-  XTY=crossprod(X,Y)
-  K=A%*%t(A)
-
-  out = XTY%*%t(XTY)%*%v - lambda*t(X.penalize)%*%K%*%X.penalize%*%v # based on output from calAv function in acPCA R package (Lin et al., 2016)
-
-  # out = tcrossprod(crossprod(X,Y))%*%matrix(v) - lambda*t(X.penalize)%*% tcrossprod(A) %*%X.penalize%*%matrix(v)
-
-  return(out)
-}
-
-plsMax = function(v,args){
-  X = args$X
-  Y = args$Y
-
-  out = tcrossprod(crossprod(X,Y))%*%matrix(v,ncol=1)
-  return(out)
-
-}
-
-pedecure.tune = function(X.orig, X.max, X.penalize, lambdas, A, Y, nPC, centerX = F, scaleX = F, centerY = F, scaleY = F, centerA = F, scaleA = F, n.cores = 1, plot = TRUE, thresh = 0.001){
-
-  sum_abs_diff = vector(mode = "numeric",length = length(lambdas))
-  names_A = colnames(A)
-
-  lambdas=sort(lambdas) # sort in case they started out of order (want to consider lambdas in ascending order)
-
-  split_lambdas = matrix(c(lambdas,rep(NA,2-length(lambdas)%%2)), ncol=2,byrow=T)
-  best_lambda = best_weighted_sum_abs_diff = vector(mode="numeric",length=nrow(split_lambdas))
-  all_weighted_sum_abs_diff = c()
-  for (lambda_group in 1:nrow(split_lambdas)){
-    weighted_sum_abs_diff = unlist(mclapply(split_lambdas[lambda_group,which(!is.na(split_lambdas[lambda_group,]))], FUN = function(l){
-      # penalized decomposition using residuals for a given lambda:
-      temp_out = pedecure(X = X.max, X.penalize = X.penalize, A = A, Y = Y, lambda = l, nPC = nPC,
-                          centerX = centerX, scaleX = scaleX, centerA = centerA, scaleA = scaleA, centerY = centerY, scaleY=scaleY)
-
-      # in-sample scores for lambda = l:
-      temp_scores = X.orig%*%temp_out$vectors # 11/03/2021 - not re-centering and scaling X here because this would have been done already
-      #temp_scores = scale(X.orig,center = centerX, scale=scaleX)%*%temp_out$vectors # scores use original data (even though residuals are used in maximization and penalty terms)
-
-      # partial correlations:
-      temp_pcor = my.pcor.fun(scores = temp_scores, A = A, Y = Y)$partial$estimates
-
-      # weighted sum of difference of absolute values of partial correlations between Y or A and scores (partial correlations conditional on A or Y)
-      ## weighted by proportion of variation explained (eigenvalues / sum of eigenvalues)
-      #weighted_sum_abs_diff_pcor = (temp_out$values/sum(temp_out$values))%*%(abs(temp_pcor["Y",]) - abs(temp_pcor["A",]))
-      weighted_sum_abs_diff_pcor = sapply(1:ncol(A), FUN = function(a){
-        (temp_out$values/sum(temp_out$values))%*%(abs(temp_pcor["Y",]) - abs(temp_pcor[names_A[a],]))
-      })
-
-      return(mean(weighted_sum_abs_diff_pcor)) # taking the average of the weighted sum of absolute differences (assuming each confounder is equally prioritized?)
-
-    }, mc.cores = n.cores))
-
-    all_weighted_sum_abs_diff = c(all_weighted_sum_abs_diff,weighted_sum_abs_diff)
-    best_weighted_sum_abs_diff[lambda_group] = max(weighted_sum_abs_diff)
-
-    best_lambda[lambda_group] = max(split_lambdas[lambda_group,which.max(weighted_sum_abs_diff)])
-
-    if (lambda_group > 2 & lambda_group < nrow(split_lambdas)-1){
-      prop_change = (best_weighted_sum_abs_diff[lambda_group]-best_weighted_sum_abs_diff[lambda_group-1])/best_weighted_sum_abs_diff[lambda_group-1]
-      if (prop_change < thresh){
-        best_lambda[(lambda_group+1):length(best_lambda)] = NA
-        break
-      }
-    }
-  }
-
-  return(list(weighted_sum_abs_diff = all_weighted_sum_abs_diff,
-              lambdas = lambdas[1:length(all_weighted_sum_abs_diff)],
-              lambda_tune = best_lambda[lambda_group]))
-
-}
