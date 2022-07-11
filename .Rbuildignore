@@ -1,3 +1,10 @@
 ^PeDecURe\.Rproj$
 ^\.Rproj\.user$
 ^README\.Rmd$
+.Rproj.user
+.Rhistory
+.Rdata
+.httr-oauth
+.DS_Store
+README.Rmd
+.Rhistory
