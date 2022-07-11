@@ -1,0 +1,395 @@
+# Figures for PeDecURe Biostatistics revision
+## compile results in this document and then plots will be made off cluster
+
+colYA1A2 = c("turquoise4", "plum4",     "tomato3" )
+rgb_col = col2rgb(colYA1A2)/256; rownames(rgb_col) = NULL
+
+## colors used for distinguishing Y, A1, A2:
+rgb_train_test = c(rgb(rgb_col[1,1],rgb_col[2,1],rgb_col[3,1],0.75),
+                   rgb(rgb_col[1,2],rgb_col[2,2],rgb_col[3,2],0.75),
+                   rgb(rgb_col[1,3],rgb_col[2,3],rgb_col[3,3],0.75))
+rgb_train_test0.3 = c(rgb(rgb_col[1,1],rgb_col[2,1],rgb_col[3,1],0.3),
+                      rgb(rgb_col[1,2],rgb_col[2,2],rgb_col[3,2],0.3),
+                      rgb(rgb_col[1,3],rgb_col[2,3],rgb_col[3,3],0.3))
+rgb_train_test0.6 = c(rgb(rgb_col[1,1],rgb_col[2,1],rgb_col[3,1],0.6),
+                      rgb(rgb_col[1,2],rgb_col[2,2],rgb_col[3,2],0.6),
+                      rgb(rgb_col[1,3],rgb_col[2,3],rgb_col[3,3],0.6))
+rgb_train_test0.1 = c(rgb(rgb_col[1,1],rgb_col[2,1],rgb_col[3,1],0.1),
+                      rgb(rgb_col[1,2],rgb_col[2,2],rgb_col[3,2],0.1),
+                      rgb(rgb_col[1,3],rgb_col[2,3],rgb_col[3,3],0.1))
+
+method_names = c("PCA", "ACPCA", "PLS", "PeDecURe")#, "PeDecX")#, "CCA","cca.PeDecURe")
+nPC=3
+
+# boxplot x axis positions:
+boxplots_at = sort(c(1:3, c(1:3)+0.35))
+boxplots_at = sort(c(boxplots_at, boxplots_at+5, boxplots_at+10))
+boxplots_at = sort(c(boxplots_at, boxplots_at+15, boxplots_at+30, boxplots_at+45))#,boxplots_at+60))
+par(mfrow=c(1,1),mar = c(3,2,1,0))
+# Figure 2: parametric simulation results ----
+#load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_p1000_04272022.RData")
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_p1000_05232022.RData")
+
+to_plot = cbind(do.call("cbind",correlations_to_plot$partial_cor$PCA),
+                do.call("cbind",correlations_to_plot$partial_cor$ACPCA),
+                do.call("cbind",correlations_to_plot$partial_cor$PLS),
+                #do.call("cbind",correlations_to_plot$partial_cor$PeDecX),
+                do.call("cbind",correlations_to_plot$partial_cor$PeDecURe))
+
+boxplot(abs(to_plot), ylim = c(0,1),at=boxplots_at,
+        boxwex=0.3,pch=16,cex=0.5,lty=1,col=c(rep(c("transparent",rgb_train_test0.3[1]),3),
+                                              rep(c("transparent",rgb_train_test0.3[2]),3),
+                                              rep(c("transparent",rgb_train_test0.3[3]),3)),staplelty=0,notch=T,
+        border = c(rep(c(rgb_train_test[1]),6),
+                   rep(c(rgb_train_test[2]),6),
+                   rep(c(rgb_train_test[3]),6)),lwd=c(1,1),yaxt='n',xaxt='n',outcol = rep(rgb_train_test0.1, each = 6),frame=F)#,xlim=c(1,70))
+
+abline(v = c(mean(boxplots_at[18:19]),mean(boxplots_at[36:37]),mean(boxplots_at[54:55])),col="black",lwd=0.5)
+axis(1,at=unique(floor(boxplots_at)),labels = rep(paste0("PC",1:3),length(unique(floor(boxplots_at)))/3),las=2,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),col="black",lwd=0.5,las=1,line=-2)
+# mtext("PCA",at=3)
+# mtext("AC-PCA",at=20)
+# mtext("PLS",at=37)
+# mtext("PeDecURe",at=54)
+
+plot.new()
+legend("center", legend = c(NA,NA,NA),
+       fill = "transparent",border=rgb_train_test,lty=1,bty='n',title="Train",col=rgb_train_test,lwd=2,xjust=-0.5)
+
+plot.new()
+legend("center", legend = c(NA,NA,NA),
+       fill = rgb_train_test0.3,border = rgb_train_test,lty=1,bty='n',title="Test",lwd=2, col = rgb_train_test)
+
+
+
+# Figure 4: plasmode simulation results from ADNI ----
+
+## Figure 4(a): partial correlations between each PC and each variable
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_ADNI_simulations_04282022.RData")
+
+to_plot = cbind(do.call("cbind",correlations_to_plot$partial_cor$PCA),
+                do.call("cbind",correlations_to_plot$partial_cor$ACPCA),
+                do.call("cbind",correlations_to_plot$partial_cor$PLS),
+                #do.call("cbind",correlations_to_plot$partial_cor$PeDecX),
+                do.call("cbind",correlations_to_plot$partial_cor$PeDecURe))
+
+boxplot(abs(to_plot), ylim = c(0,1),at=boxplots_at,
+        boxwex=0.3,pch=16,cex=0.5,lty=1,col=c(rep(c("transparent",rgb_train_test0.3[1]),3),
+                                              rep(c("transparent",rgb_train_test0.3[2]),3),
+                                              rep(c("transparent",rgb_train_test0.3[3]),3)),staplelty=0,notch=T,
+        border = c(rep(c(rgb_train_test[1]),6),
+                   rep(c(rgb_train_test[2]),6),
+                   rep(c(rgb_train_test[3]),6)),lwd=c(1,1),yaxt='n',xaxt='n',outcol = rep(rgb_train_test0.1, each = 6),frame=F)#,xlim=c(1,70))
+
+abline(v = c(mean(boxplots_at[18:19]),mean(boxplots_at[36:37]),mean(boxplots_at[54:55])),col="black",lwd=0.5)
+axis(1,at=unique(floor(boxplots_at)),labels = rep(paste0("PC",1:3),length(unique(floor(boxplots_at)))/3),las=2,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),col="black",lwd=0.5,las=1,line=-2)
+
+par(mfrow=c(1,3),mar=c(4,4,4,4))
+## Figure 4(b) prediction using PC1
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/ADNI_prediction_with_PC1_summaries04282022.RData")
+
+# also add horizontal dotted lines with cross-validated prediction metrics from each method in balanced ADNI sample
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/ADNI_results_n422_05042022.RData")
+
+boxplot(ADNI_prediction_summaries$pred_Y[,method_names],lty=1,col = rgb_train_test0.1[1],lwd=1.5,outcol = rgb_train_test0.3[1],pch=16,boxwex=0.6,notch=T,
+        border =rgb_train_test[1],staplelty=0,
+        ylim=c(0,1),cex=1,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_Y = sapply(ADNI_results_n422$CV_prediction_metrics[method_names], FUN = function(x) x$predict_Y_AUC)
+segments(x0 = c(1:4)-0.3, x1 = c(1:4)+0.3, y0 = cv.pred_Y,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Disease Group (Y)",line=2,cex=1.75)
+mtext("AUC",line=0.5,cex=1.25)
+axis(1,at=1:4,labels = method_names,las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),lwd=0.5,las=1,line=-2,cex.axis=1.75)
+
+boxplot(ADNI_prediction_summaries$pred_A1[,method_names],lty=1,col = rgb_train_test0.1[2],lwd=1.5,outcol = rgb_train_test0.3[2],pch=16,boxwex=0.6,notch=T,border =rgb_train_test[2],staplelty=0,
+        ylim=c(4,8.5),cex=1,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_A1 =sapply(ADNI_results_n422$CV_prediction_metrics[method_names], FUN = function(x) x$predict_A1_RMSE)
+segments(x0 = c(1:4)-0.3, x1 = c(1:4)+0.3, y0 = cv.pred_A1,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Age (A1)",line=2,cex=1.75)
+mtext("RMSE",line=0.5,cex=1.25)
+axis(1,at=1:4,labels = method_names,las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(4,9,by=1),lwd=0.5,las=1,line=-2,cex.axis=1.75)
+
+boxplot(1-ADNI_prediction_summaries$pred_A2[,method_names],lty=1,col = rgb_train_test0.1[3],lwd=1.5,outcol = rgb_train_test0.3[3],pch=16,boxwex=0.6,notch=T,border =rgb_train_test[3],staplelty=0,
+        ylim=c(0,1),cex.axis=1.5,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_A2 =sapply(ADNI_results_n422$CV_prediction_metrics[method_names], FUN = function(x) x$predict_A2_AUC)
+segments(x0 = c(1:4)-0.3, x1 = c(1:4)+0.3, y0 = 1-cv.pred_A2,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Sex (A2)",line=2,cex=1.75)
+mtext("1-AUC",line=0.5,cex=1.25)
+axis(1,at=1:4,labels = method_names,las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),lwd=0.5,las=1,line=-2,cex.axis=1.75)
+
+# Figure 5: visualization of top ROIs from each method ----
+## in simulations with imbalanced ADNI data
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/PC1_loading_each_method_all_sims04282022.RData")
+
+# roi names:
+roi_names = read.csv("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/MultiAtlasROISegmentation_SampleDatasheet_v12_ROIIndexes.csv")
+
+## in sample of n=422 from ADNI with balance w.r.t. age and sex
+
+# identify top 5% of ROIs from analysis done in n=422 from ADNI
+top_ROIs_ADNI_n422 = list()
+for (method in c("PCA", "ACPCA", "PLS", "PeDecX","PeDecURe")){
+  top_rois_thresh = quantile(abs(ADNI_results_n422$PC1_loadings[,method]),0.95)
+  ROI_index = readr::parse_number(rownames(ADNI_results_n422$PC1_loadings)[which(abs(ADNI_results_n422$PC1_loadings[,method]) > top_rois_thresh)])
+  top_ROIs_ADNI_n422[[method]] = data.frame(ROI_index = ROI_index,
+                                            ROI_name = roi_names$ROI_NAME[which(roi_names$ROI_INDEX %in% ROI_index)])
+
+}
+
+# unique ROIs that will need to be visualized
+unique(unlist(lapply(top_ROIs_ADNI_n422, FUN = function(x){x$ROI_name})))
+length(unique(unlist(lapply(top_ROIs_ADNI_n422, FUN = function(x){x$ROI_name}))))
+
+## in ADNI simulations:
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/PC1_loading_each_method_all_sims04282022.RData")
+# identify the top 5% of ROIs from each simulation
+nsim=1000
+top_ROIs_ADNI_sim = list()
+for (method in c("PCA", "ACPCA", "PLS", "PeDecX","PeDecURe")){
+  method_loadings = PC1_loading_each_method_all_sims[[method]]
+  dim(method_loadings)
+  top_ROIs_each_sim = lapply(1:nsim, FUN = function(sim){
+    thresh_temp = quantile(abs(method_loadings[sim,]),0.95)
+    top_ROI_index = sort(readr::parse_number(rownames(ADNI_results_n422$PC1_loadings)[which(abs(method_loadings[sim,])>thresh_temp)]))
+    return(top_ROI_index)
+  })
+  top_ROIs_all_sim = table(unlist(top_ROIs_each_sim))
+  # identify which ROIs appear in at least 50% of the simulations (at least 500/1000)
+  ROI_index_temp = readr::parse_number(names(top_ROIs_all_sim[which(top_ROIs_all_sim>500)]))
+  top_ROIs_ADNI_sim[[method]] = data.frame(ROI_index = ROI_index_temp,
+                                      ROI_name = roi_names$ROI_NAME[which(roi_names$ROI_INDEX %in% ROI_index_temp)])
+
+}
+unique(unlist(lapply(top_ROIs_ADNI_sim, FUN = function(x){x$ROI_name})))
+length(unique(unlist(lapply(top_ROIs_ADNI_sim, FUN = function(x){x$ROI_name}))))
+
+# load template:
+library(oro.nifti)
+library(neurobase)
+roi_template = readNIfTI("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/Template1_label_radiological.nii.gz")
+ortho2(roi_template,bg="transparent",NA.x=T,crosshairs=F,mfrow=c(1,3))
+
+col.palette = c("#D0609B", "#E0E24C", "#CEDE85",
+                "#82E65E", "#8080D8", "#7AD7D6",
+                "#E3A852", "#7946E1", "#C1DAB3",
+                "#D958DC", "#DBA3D9", "#72E2A1",
+                "#89AACD", "#D55D57", "pink",#"#DADADF",
+                "purple")
+
+unique_ROIs = unique(rbind(do.call("rbind",top_ROIs_ADNI_sim),
+                           do.call("rbind",top_ROIs_ADNI_n422)))
+rownames(unique_ROIs) = NULL
+nrow(unique_ROIs)
+
+setwd("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/top_ROIs")
+ROI_templates = list()
+for (ind in 1:nrow(unique_ROIs)){
+  temp_template = roi_template
+  temp_template[which(temp_template!=unique_ROIs$ROI_index[ind])] = 0
+  temp_template[which(temp_template==unique_ROIs$ROI_index[ind])] = 1
+  ROI_templates[[unique_ROIs$ROI_name[ind]]] = temp_template
+
+  png(file = paste0(unique_ROIs$ROI_name[ind],".png"),bg = "transparent",width=500,height=170)
+  ortho2(ROI_templates[[unique_ROIs$ROI_name[ind]]],col = col.palette[ind],bg = "transparent",mfrow=c(1,3),NA.x=T,crosshairs=F)
+  dev.off()
+}
+png(file = "roi_template.png",bg = "transparent",width = 500,height=170)
+ortho2(roi_template,bg="transparent",NA.x=T,crosshairs=F,mfrow=c(1,3))
+dev.off()
+
+
+# create a separate ortho2 for each ROI and then overlay them for each method
+
+##### SUPPLEMENTAL FIGURES: -----
+
+# Supplemental Figure 1: simulation results using different lambda
+
+## (a) in simulation setting
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_param_simulations_different_lambda05232022.RData")
+str(summarize_across_lambdas)
+lambdas = readr::parse_number(colnames(summarize_across_lambdas$train$correlations_partial$Y$PC1))
+par(mfrow=c(3,1),mar=c(4,4,2,0))
+
+names(rgb_train_test0.6) = names(rgb_train_test) = names(rgb_train_test0.1)= names(rgb_train_test0.3) = c("Y","A1","A2")
+for (PC in c("PC1","PC2","PC3")){
+  plot(x = lambdas, xlim=c(min(lambdas),max(lambdas)),ylim=c(0,1),type='n',xlab=" ",ylab = " ",xaxt='n',frame=F,yaxt='n')
+  axis(1,at=seq(0,30,by=5),cex.axis=1.25)
+  axis(2,at=seq(0,1,by=0.2),cex.axis=1.25,las=2)
+  for (v in c("Y","A1","A2")){
+    points(lambdas,summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["Mean",],type='p',col=rgb_train_test0.6[v],pch=16,cex=1.25)
+    # points(lambdas,summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["3rd Qu.",],type='p',col=rgb_train_test0.3[v],pch=16,cex=0.5)
+    # points(lambdas,summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["1st Qu.",],type='p',col=rgb_train_test0.3[v],pch=16,cex=0.5)
+
+    segments(x0=lambdas,y0=summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["3rd Qu.",],
+             x1=lambdas,y1=summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["1st Qu.",],col = rgb_train_test0.6[v],lwd=1.5)
+  }
+}
+
+
+
+## (b) in ADNI simulations
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_ADNI_simulations_different_lambda04282022.RData")
+for (PC in c("PC1","PC2","PC3")){
+  plot(x = lambdas, xlim=c(min(lambdas),max(lambdas)),ylim=c(0,1),type='n',xlab=" ",ylab = " ",xaxt='n',frame=F,yaxt='n')
+  axis(1,at=seq(0,30,by=5),cex.axis=1.25)
+  axis(2,at=seq(0,1,by=0.2),cex.axis=1.25,las=2)
+  for (v in c("Y","A1","A2")){
+    points(lambdas,summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["Mean",],type='p',col=rgb_train_test0.6[v],pch=16,cex=1.25)
+    # points(lambdas,summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["3rd Qu.",],type='p',col=rgb_train_test0.3[v],pch=16,cex=0.5)
+    # points(lambdas,summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["1st Qu.",],type='p',col=rgb_train_test0.3[v],pch=16,cex=0.5)
+
+    segments(x0=lambdas,y0=summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["3rd Qu.",],
+             x1=lambdas,y1=summarize_across_lambdas$train$correlations_partial[[v]][[PC]]["1st Qu.",],col = rgb_train_test0.6[v],lwd=1.5)
+  }
+}
+
+par(mfrow=c(1,1))
+plot.new()
+
+legend("center", bty='n',legend=c(NA,NA,NA),lty=1,lwd=2,col=rgb_train_test0.6,pch=16,cex=3)
+
+# Supplemental Figure 2: comparison between PeDecURe with and without residualization
+
+## in parametric simulation setting:
+boxplots_at = sort(c(1:3, c(1:3)+0.35))
+boxplots_at = sort(c(boxplots_at, boxplots_at+5, boxplots_at+10))
+boxplots_at = sort(c(boxplots_at, boxplots_at+15))#, boxplots_at+30, boxplots_at+45))#,boxplots_at+60))
+par(mfrow=c(1,1),mar = c(3,3,2,0))
+# Figure 2: parametric simulation results ----
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_p1000_05232022.RData")
+
+to_plot = cbind(#do.call("cbind",correlations_to_plot$partial_cor$PCA),
+                #do.call("cbind",correlations_to_plot$partial_cor$ACPCA),
+                #do.call("cbind",correlations_to_plot$partial_cor$PLS),
+                do.call("cbind",correlations_to_plot$partial_cor$PeDecURe),
+                do.call("cbind",correlations_to_plot$partial_cor$PeDecX))
+
+boxplot(abs(to_plot), ylim = c(0,1),at=boxplots_at,
+        boxwex=0.3,pch=16,cex=0.5,lty=1,col=c(rep(c("transparent",rgb_train_test0.3[1]),3),
+                                              rep(c("transparent",rgb_train_test0.3[2]),3),
+                                              rep(c("transparent",rgb_train_test0.3[3]),3)),staplelty=0,notch=T,
+        border = c(rep(c(rgb_train_test[1]),6),
+                   rep(c(rgb_train_test[2]),6),
+                   rep(c(rgb_train_test[3]),6)),lwd=c(1,1),yaxt='n',xaxt='n',outcol = rep(rgb_train_test0.1, each = 6),frame=F)#,xlim=c(1,70))
+
+abline(v = c(mean(boxplots_at[18:19]),mean(boxplots_at[36:37]),mean(boxplots_at[54:55])),col="black",lwd=0.5)
+axis(1,at=unique(floor(boxplots_at)),labels = rep(paste0("PC",1:3),length(unique(floor(boxplots_at)))/3),las=2,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),col="black",lwd=0.5,las=1,line=0)
+
+## in ADNI plasmode simulation setting:
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_ADNI_simulations_04282022.RData")
+to_plot = cbind(#do.call("cbind",correlations_to_plot$partial_cor$PCA),
+  #do.call("cbind",correlations_to_plot$partial_cor$ACPCA),
+  #do.call("cbind",correlations_to_plot$partial_cor$PLS),
+  do.call("cbind",correlations_to_plot$partial_cor$PeDecURe),
+  do.call("cbind",correlations_to_plot$partial_cor$PeDecX))
+
+boxplot(abs(to_plot), ylim = c(0,1),at=boxplots_at,
+        boxwex=0.3,pch=16,cex=0.5,lty=1,col=c(rep(c("transparent",rgb_train_test0.3[1]),3),
+                                              rep(c("transparent",rgb_train_test0.3[2]),3),
+                                              rep(c("transparent",rgb_train_test0.3[3]),3)),staplelty=0,notch=T,
+        border = c(rep(c(rgb_train_test[1]),6),
+                   rep(c(rgb_train_test[2]),6),
+                   rep(c(rgb_train_test[3]),6)),lwd=c(1,1),yaxt='n',xaxt='n',outcol = rep(rgb_train_test0.1, each = 6),frame=F)#,xlim=c(1,70))
+
+abline(v = c(mean(boxplots_at[18:19]),mean(boxplots_at[36:37]),mean(boxplots_at[54:55])),col="black",lwd=0.5)
+axis(1,at=unique(floor(boxplots_at)),labels = rep(paste0("PC",1:3),length(unique(floor(boxplots_at)))/3),las=2,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),col="black",lwd=0.5,las=1,line=0)
+
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/ADNI_prediction_with_PC1_summaries04282022.RData")
+
+# also add horizontal dotted lines with cross-validated prediction metrics from each method in balanced ADNI sample
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/ADNI_results_n422_05042022.RData")
+
+par(mfrow=c(1,1),mar=c(2,2,2,2))
+boxplot(ADNI_prediction_summaries$pred_Y[,c("PeDecURe","PeDecX")],lty=1,col = rgb_train_test0.1[1],lwd=1.5,outcol = rgb_train_test0.3[1],pch=16,boxwex=0.6,notch=T,
+        border =rgb_train_test[1],staplelty=0,
+        ylim=c(0,1),cex=1,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_Y = sapply(ADNI_results_n422$CV_prediction_metrics[c("PeDecURe","PeDecX")], FUN = function(x) x$predict_Y_AUC)
+segments(x0 = c(1:2)-0.3, x1 = c(1:2)+0.3, y0 = cv.pred_Y,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Disease Group (Y)",line=2,cex=1.75)
+mtext("AUC",line=0.5,cex=1.25)
+axis(1,at=1:2,labels = c("PeDecURe","PeDecX"),las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),lwd=0.5,las=1,line=-2,cex.axis=1.5)
+
+boxplot(ADNI_prediction_summaries$pred_A1[,c("PeDecURe","PeDecX")],lty=1,col = rgb_train_test0.1[2],lwd=1.5,outcol = rgb_train_test0.3[2],pch=16,boxwex=0.6,notch=T,border =rgb_train_test[2],staplelty=0,
+        ylim=c(2,8.5),cex=1,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_A1 =sapply(ADNI_results_n422$CV_prediction_metrics[c("PeDecURe","PeDecX")], FUN = function(x) x$predict_A1_RMSE)
+segments(x0 = c(1:2)-0.3, x1 = c(1:2)+0.3, y0 = cv.pred_A1,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Age (A1)",line=2,cex=1.75)
+mtext("RMSE",line=0.5,cex=1.25)
+axis(1,at=1:2,labels = c("PeDecURe","PeDecX"),las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(2,9,by=1),lwd=0.5,las=1,line=-2,cex.axis=1.5)
+
+boxplot(1-ADNI_prediction_summaries$pred_A2[,c("PeDecURe","PeDecX")],lty=1,col = rgb_train_test0.1[3],lwd=1.5,outcol = rgb_train_test0.3[3],pch=16,boxwex=0.6,notch=T,border =rgb_train_test[3],staplelty=0,
+        ylim=c(0,1),cex.axis=1.5,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_A2 =sapply(ADNI_results_n422$CV_prediction_metrics[c("PeDecURe","PeDecX")], FUN = function(x) x$predict_A2_AUC)
+segments(x0 = c(1:2)-0.3, x1 = c(1:2)+0.3, y0 = 1-cv.pred_A2,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Sex (A2)",line=2,cex=1.75)
+mtext("1-AUC",line=0.5,cex=1.25)
+axis(1,at=1:2,labels = c("PeDecURe","PeDecX"),las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),lwd=0.5,las=1,line=-2,cex.axis=1.5)
+
+
+## in ADNI plasmode simulation setting: -- plot all methods (supplement + main figure combined into one for some slides)
+boxplots_at = sort(c(1:3, c(1:3)+0.35))
+boxplots_at = sort(c(boxplots_at, boxplots_at+5, boxplots_at+10))
+boxplots_at = sort(c(boxplots_at, boxplots_at+15, boxplots_at+30, boxplots_at+45,boxplots_at+60))
+par(mfrow=c(1,1),mar = c(4,2,1,0))
+
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/compiled_results_ADNI_simulations_04282022.RData")
+to_plot = cbind(do.call("cbind",correlations_to_plot$partial_cor$PCA),
+  do.call("cbind",correlations_to_plot$partial_cor$ACPCA),
+  do.call("cbind",correlations_to_plot$partial_cor$PLS),
+  do.call("cbind",correlations_to_plot$partial_cor$PeDecX),
+  do.call("cbind",correlations_to_plot$partial_cor$PeDecURe))
+
+boxplot(abs(to_plot), ylim = c(0,1),at=boxplots_at,
+        boxwex=0.3,pch=16,cex=0.5,lty=1,col=c(rep(c("transparent",rgb_train_test0.3[1]),3),
+                                              rep(c("transparent",rgb_train_test0.3[2]),3),
+                                              rep(c("transparent",rgb_train_test0.3[3]),3)),staplelty=0,notch=T,
+        border = c(rep(c(rgb_train_test[1]),6),
+                   rep(c(rgb_train_test[2]),6),
+                   rep(c(rgb_train_test[3]),6)),lwd=c(1,1),yaxt='n',xaxt='n',outcol = rep(rgb_train_test0.1, each = 6),frame=F)#,xlim=c(1,70))
+
+abline(v = c(mean(boxplots_at[18:19]),mean(boxplots_at[36:37]),mean(boxplots_at[54:55]),mean(boxplots_at[72:73])),col="black",lwd=0.5)
+axis(1,at=unique(floor(boxplots_at)),labels = rep(paste0("PC",1:3),length(unique(floor(boxplots_at)))/3),las=2,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),col="black",lwd=0.5,las=1,line=-0.5)
+
+load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/ADNI_prediction_with_PC1_summaries04282022.RData")
+
+# also add horizontal dotted lines with cross-validated prediction metrics from each method in balanced ADNI sample
+#load("/Users/smweinst/Box Sync/research/PeDecURe/drafts/Biostatistics_revision/revision_figures/compiled_results_for_revision_figures/ADNI_results_n422_05042022.RData")
+
+par(mfrow=c(1,1),mar=c(2,2,2,2))
+boxplot(ADNI_prediction_summaries$pred_Y,lty=1,col = rgb_train_test0.1[1],lwd=1.5,outcol = rgb_train_test0.3[1],pch=16,boxwex=0.6,notch=T,
+        border =rgb_train_test[1],staplelty=0,
+        ylim=c(0,1),cex=1,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_Y = sapply(ADNI_results_n422$CV_prediction_metrics, FUN = function(x) x$predict_Y_AUC)
+#segments(x0 = c(1:2)-0.3, x1 = c(1:2)+0.3, y0 = cv.pred_Y,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Disease Group (Y)",line=2,cex=1.75)
+mtext("AUC",line=0.5,cex=1.25)
+axis(1,at=1:5,labels = colnames(ADNI_prediction_summaries$pred_Y),las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),lwd=0.5,las=1,line=-1,cex.axis=1.5)
+
+boxplot(ADNI_prediction_summaries$pred_A1[,c("PeDecURe","PeDecX")],lty=1,col = rgb_train_test0.1[2],lwd=1.5,outcol = rgb_train_test0.3[2],pch=16,boxwex=0.6,notch=T,border =rgb_train_test[2],staplelty=0,
+        ylim=c(2,8.5),cex=1,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_A1 =sapply(ADNI_results_n422$CV_prediction_metrics[c("PeDecURe","PeDecX")], FUN = function(x) x$predict_A1_RMSE)
+segments(x0 = c(1:2)-0.3, x1 = c(1:2)+0.3, y0 = cv.pred_A1,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Age (A1)",line=2,cex=1.75)
+mtext("RMSE",line=0.5,cex=1.25)
+axis(1,at=1:2,labels = c("PeDecURe","PeDecX"),las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(2,9,by=1),lwd=0.5,las=1,line=-2,cex.axis=1.5)
+
+boxplot(1-ADNI_prediction_summaries$pred_A2[,c("PeDecURe","PeDecX")],lty=1,col = rgb_train_test0.1[3],lwd=1.5,outcol = rgb_train_test0.3[3],pch=16,boxwex=0.6,notch=T,border =rgb_train_test[3],staplelty=0,
+        ylim=c(0,1),cex.axis=1.5,xaxt='n',frame=F,yaxt = 'n')
+cv.pred_A2 =sapply(ADNI_results_n422$CV_prediction_metrics[c("PeDecURe","PeDecX")], FUN = function(x) x$predict_A2_AUC)
+segments(x0 = c(1:2)-0.3, x1 = c(1:2)+0.3, y0 = 1-cv.pred_A2,lty=3,col ="gray24" ,lwd=2.5)
+mtext("Prediction of Sex (A2)",line=2,cex=1.75)
+mtext("1-AUC",line=0.5,cex=1.25)
+axis(1,at=1:2,labels = c("PeDecURe","PeDecX"),las=1,cex.axis=0.95,col="black",lwd=0.5)
+axis(2, at = seq(0,1,by=0.2),lwd=0.5,las=1,line=-2,cex.axis=1.5)
+
