@@ -11,7 +11,7 @@ substantially reducing overlap with information about nuisance variables
 (e.g., age or sex).
 
 In our
-[manuscript](https://www.biorxiv.org/content/10.1101/2022.01.27.477859v1),
+[paper](https://academic.oup.com/biostatistics/advance-article/doi/10.1093/biostatistics/kxac031/6661240?searchresult=1) (now published in *Biostatistics*),
 we introduce the intuition behind our method and illustrate that
 features extracted using PeDecURe are predictive of an outcome of
 interest, have low correlations with nuisance variables, and show
